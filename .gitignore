@@ -1,0 +1,8 @@
+.env
+.vscode
+package-lock.json
+
+node_modules
+scrapCode.txt
+
+views/pic.ejs
