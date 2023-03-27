@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const multer = require("multer")
 const imagemodels = require("./models/imageModel.js")
+const mangaModel = require("./models/mangaModel.js")
 const fs = require('fs')
 require('dotenv').config()
 
@@ -17,7 +18,7 @@ app.set("view engine",'ejs')
 app.use(express.static('public'))
 
 
-mongoose.connect(process.env.MongoURI).then(()=>{
+mongoose.connect(CompassURI).then(()=>{
     console.log(`MongoDB connected`)
 }).catch((e)=>{
     console.log(`Some ERROR has occured`)
@@ -34,7 +35,7 @@ const Storage = multer.diskStorage({
 })
 const upload = multer({
     storage: Storage
-})
+}).array('images',100)
 
 
     // res.send("App is running")
@@ -42,25 +43,45 @@ app.get('/', async (req, res) => {
     const items = await imagemodels.find({})
     .catch((err)=>{ 
         console.log(err);
-        res.status(500).send('An error occurred', err);})
-    
-    
+        res.status(500).send('An error occurred', err);
+    })
+        
     // console.log(items)
     const arrItems = Array.from(items)
     // console.log(arrItems)
+    // console.log(mangaModel.findOne({}).exec())
     res.render('index', { items: arrItems });
 });
-app.post("/upload",upload.single('image'),async(req,res)=>{
-    
-    const newImage = new imageModel({
-        name : req.body.name,
-        image : {
-            data : fs.readFileSync("./public/uploads/"+req.file.filename),
-            contentType : 'image/png',
-            path : req.file.filename
-        }
+
+app.post("/upload",upload,async(req,res)=>{
+    // console.log(req.files)
+
+    // if(mangaModel.findOne({MangaName : req.body.MangaName})){
+    //     console.log('in if block')
+        // mangaModel.updateOne({MangaName : req.body.MangaName},{$push : {Chapters : req.body.ChapterNo}})
+    // }
+    // else{
+        // const newManga = new mangaModel({
+        //     MangaName : req.body.MangaName,
+        //     ChapterNo : new Array(Number(req.body.ChapterNo))
+        // })
+        // await newManga.save().then(console.log(`New manga saved`))
+    // }
+
+    req.files.forEach(async(img)=>{
+        const newImage = new imageModel({
+            MangaName : req.body.MangaName,
+            ChapterNo : req.body.ChapterNo,
+            ChapterName : req.body.name,
+            image : {
+                data : fs.readFileSync("./public/uploads/"+img.filename),
+                contentType : img.mimetype,
+                path : img.filename
+            }
+        })
+        await newImage.save().then(console.log("mongo save!!"))
     })
-    await newImage.save().then(console.log("mongo save!!"))
+    
     res.send("Successfully uploaded !")
 })
 

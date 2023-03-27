@@ -1,0 +1,9 @@
+create a form with chapter icon and multiple images form
+images should be named in page numbers
+
+generate the url acc to manga name and chapter name
+
+
+TASK 1
+==> implement multiple uploading
+==> arrange them by page 1,2,3 ...

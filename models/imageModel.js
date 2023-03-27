@@ -1,7 +1,12 @@
 const mongoose = require("mongoose")
 
 const imageSchema =mongoose.Schema({
-    name: {
+    MangaName : String,
+    ChapterNo : {
+        type : Number,
+        required : true
+    },
+    ChapterName: {
         type: String
         // required : true
     },
